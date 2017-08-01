@@ -19,7 +19,7 @@
 
 
 //getter for cards, we alloc memory for cards here
-//this is call lazy init, only init upon use
+//this is called lazy init, only init upon use
 - (NSMutableArray *) cards {
     if (!_cards) {
         _cards = [[NSMutableArray alloc] init];
