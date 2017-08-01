@@ -7,23 +7,50 @@
 //
 
 #import "ViewController.h"
+#import "PlayingCardDeck.h"
+#import "PlayingCard.h"
 
 @interface ViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *flipsLabel;
+@property (nonatomic) NSUInteger flipCount;
+@property (strong, nonatomic) PlayingCardDeck *deck;
 
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+- (PlayingCardDeck* ) deck{
+    if (_deck == nil){
+        _deck = [[PlayingCardDeck alloc] init];
+    }
+    
+    return _deck;
 }
 
+- (IBAction)touchCardButton:(UIButton *)sender {
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    if ([sender.currentTitle length]){
+        UIImage *cardImage = [UIImage imageNamed: @"cardback"];
+        [sender setBackgroundImage:cardImage forState:UIControlStateNormal];
+        [sender setTitle:@"" forState:UIControlStateNormal];
+    } else {
+        PlayingCard * card = (PlayingCard *)[self.deck drawRandomCard];
+        if (card == nil) {
+            NSLog(@"Trying to Flip, But No More Cards in Deck");
+            return;
+        }
+        [sender setBackgroundImage:[UIImage imageNamed: @"cardfront"]
+                          forState:UIControlStateNormal];
+        [sender setTitle:card.contents forState:UIControlStateNormal];
+//        [sender setTitle: @"A♣︎" forState: UIControlStateNormal];
+    }
+    self.flipCount++;
 }
 
+- (void) setFlipCount:(NSUInteger)flipCount {
+    _flipCount = flipCount;
+    self.flipsLabel.text = [NSString stringWithFormat: @"Flips: %lu", (unsigned long)self.flipCount];
+    NSLog(@"Flipcount = %lu", self.flipCount);
+}
 
 @end
