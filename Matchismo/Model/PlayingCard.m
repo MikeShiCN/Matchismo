@@ -50,4 +50,22 @@
     }
 }
 
+static const int REWARD_BONUS_MULTIPLIER = 4;
+
+- (int)match:(NSArray *) otherCards{
+    int score = 0;
+    if ([otherCards count] == 1){
+        PlayingCard * otherCard = otherCards[0];
+        if (self.rank == otherCard.rank){
+            score = 4 * REWARD_BONUS_MULTIPLIER; //reward for rank match
+        } else if ([self.suit isEqualToString: otherCard.suit]){
+            score = 1 * REWARD_BONUS_MULTIPLIER; //reward for suit match
+        } else {
+            score = 0; //Penalty for mis-match
+        }
+    }
+    
+    return score;
+}
+
 @end
