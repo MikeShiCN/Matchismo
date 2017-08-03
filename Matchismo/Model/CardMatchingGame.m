@@ -54,36 +54,73 @@
 
 static const int COST_TO_CHOOSE = -1;
 
+- (NSString *) getCardsString:(NSArray *)cards{
+    NSMutableString * cardsString = [[NSMutableString alloc] init];
+    
+    for (Card *card in cards){
+        [cardsString appendString: card.contents];
+    }
+    
+    return cardsString;
+}
+
+//Choose a card and Match again n-cards
 - (void)chooseCardAtIndex:(NSUInteger) index {
     if (index >= [self.cards count]) {
         NSLog(@"Index[%lu] out of bounds in [%s]",  (unsigned long)index, __func__);
         return;
     }
     
-//    Card * curCard = self.cards[index];
     Card * curCard = [self cardAtIndex:index];
-    if (curCard.isChosen || curCard.isMatched) {
-        curCard.chosen = false;
+    
+    if (curCard.isMatched) {
+        //should never happen
+        NSLog(@"Fatal: Choosing a card already matched! card = [%@]", curCard.contents);
         return;
     }
     
-    curCard.chosen = true;
+    //Flip the card
+    curCard.chosen = !curCard.isChosen;
     self.score += COST_TO_CHOOSE;
-    for (Card * otherCard in self.cards){
-        if (otherCard == curCard) { continue; }
-        if (otherCard.isChosen){
-            int matchScore = [curCard match:@[otherCard]];
-            self.score += matchScore;
-            if (matchScore > 0){
-                curCard.matched = true;
-                otherCard.matched = true;
-                curCard.chosen = false;
-                otherCard.chosen = false;
-            } else {
-                otherCard.chosen = false;
-            }
+    
+    NSMutableArray * allChosenCards = [[NSMutableArray alloc] init];
+    
+    for (Card * card in self.cards) {
+        if (card.isChosen) {
+            [allChosenCards addObject:card];
         }
     }
+    NSLog(@"count = %lu, mode=%d", (unsigned long)[allChosenCards count], self.mode);
+    if ([allChosenCards count] == self.mode) {
+        //Let's Match
+        NSMutableArray * allOtherChosenCards = [[NSMutableArray alloc] init];
+        [allOtherChosenCards addObjectsFromArray:allChosenCards];
+        [allOtherChosenCards removeObject:curCard];
+        
+        int matchScore = [curCard match:allOtherChosenCards];
+        self.score += matchScore;
+        
+        if (matchScore > 0){
+            for (Card * card in allChosenCards) {
+                card.matched = YES;
+                card.chosen = NO;
+            }
+            self.status = [NSString stringWithFormat:@"Matched:%@ for %d points",
+                           [self getCardsString:allChosenCards], matchScore];
+            
+        } else {
+            for (Card * card in allOtherChosenCards) {
+                card.chosen = NO;
+            }
+            self.status = [NSString stringWithFormat:@"%@ don't match! %d points penalty!",
+                          [self getCardsString:allChosenCards], matchScore];
+        }
+        
+    } else {
+        self.status = [self getCardsString:allChosenCards];
+    }
+    NSLog(@"%@", self.status);
+
 }
 
 @end

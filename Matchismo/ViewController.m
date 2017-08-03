@@ -12,20 +12,26 @@
 #import "CardMatchingGame.h"
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet UILabel *flipsLabel;
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *status;
 @property (strong, nonatomic) IBOutletCollection(UIButton) NSArray *cardButtons;
-@property (nonatomic) NSUInteger flipCount;
+
+@property (weak, nonatomic) IBOutlet UISegmentedControl *gameModeControl;
+
 @property (strong, nonatomic) PlayingCardDeck *deck;
 @property (strong, nonatomic) CardMatchingGame *game;
+@property (nonatomic) BOOL isInGame;
 @end
 
 @implementation ViewController
 
 - (CardMatchingGame *)game {
     if (!_game) {
-        _game = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count]
-                                                  usingDeck:[self createDeck]];
+        [self newGame];
+//        _game = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count]
+//                                                  usingDeck:[self createDeck]];
+    
     }
     return _game;
 }
@@ -42,10 +48,22 @@
     return _deck;
 }
 
+- (GameMode) getGameModeByIndex: (NSUInteger) index {
+    if (index == 0){
+        return twoCardGame;
+    } else {
+        return threeCardGame;
+    }
+}
+
 - (void)newGame {
     _game = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count]
                                               usingDeck:[self createDeck]];
+    self.isInGame = NO;
+    _game.mode = [self getGameModeByIndex:self.gameModeControl.selectedSegmentIndex] ;
 }
+
+
 
 - (void) updateUI{
     for (unsigned i = 0; i < [self.cardButtons count]; i++) {
@@ -66,40 +84,36 @@
             button.enabled = true;
         }
     }
+
+    if (self.isInGame) {
+        self.gameModeControl.enabled = NO;
+    } else {
+        self.gameModeControl.enabled = YES;
+    }
     self.scoreLabel.text = [NSString stringWithFormat:@"Score:%ld", (long)self.game.score];
+    self.status.text = self.game.status;
 }
 
 - (IBAction)touchCardButton:(UIButton *)sender {
     NSUInteger chooseButtonIndex = [self.cardButtons indexOfObject:sender];
     [self.game chooseCardAtIndex:chooseButtonIndex];
+    self.isInGame = YES;
     [self updateUI];
-/*    if ([sender.currentTitle length]){
-        UIImage *cardImage = [UIImage imageNamed: @"cardback"];
-        [sender setBackgroundImage:cardImage forState:UIControlStateNormal];
-        [sender setTitle:@"" forState:UIControlStateNormal];
-    } else {
-        PlayingCard * card = (PlayingCard *)[self.deck drawRandomCard];
-        if (card == nil) {
-            NSLog(@"Trying to Flip, But No More Cards in Deck");
-            sender.enabled = false;
-            return;
-        }
-        [sender setBackgroundImage:[UIImage imageNamed: @"cardfront"]
-                          forState:UIControlStateNormal];
-        [sender setTitle:card.contents forState:UIControlStateNormal];
-//        [sender setTitle: @"A♣︎" forState: UIControlStateNormal];
-    }*/
-    self.flipCount++;
+
+
 }
 - (IBAction)restart:(UIButton *)sender {
     [self newGame];
     [self updateUI];
 }
-
-- (void) setFlipCount:(NSUInteger)flipCount {
-    _flipCount = flipCount;
-    self.flipsLabel.text = [NSString stringWithFormat: @"Flips: %lu", (unsigned long)self.flipCount];
-    NSLog(@"Flipcount = %lu, in [%s]", self.flipCount, __func__);
+- (IBAction)touchGameModeSegment:(UISegmentedControl *)sender {
+    if (sender.selectedSegmentIndex == 0){
+        self.game.mode = twoCardGame;
+    } else {
+        self.game.mode = threeCardGame;
+    }
+    NSLog(@"GameMode = %u", self.game.mode);
 }
+
 
 @end

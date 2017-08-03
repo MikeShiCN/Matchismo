@@ -9,6 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "Deck.h"
 #import "Card.h"
+
+typedef enum{
+    twoCardGame = 2,
+    threeCardGame = 3
+} GameMode;
+
 @interface CardMatchingGame : NSObject
 
 - (instancetype) initWithCardCount: (NSUInteger)count usingDeck:(Deck *) deck;
@@ -19,4 +25,9 @@
 
 @property (nonatomic, readonly) NSInteger score;
 
+@property (nonatomic) GameMode mode;
+
+@property (strong, nonatomic) NSString *status;
+
 @end
+
