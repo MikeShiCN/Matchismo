@@ -23,11 +23,13 @@ typedef enum{
 
 - (Card *)cardAtIndex: (NSUInteger) index;
 
+- (NSArray *) getStatusArray;
+
 @property (nonatomic, readonly) NSInteger score;
 
 @property (nonatomic) GameMode mode;
 
-@property (strong, nonatomic) NSString *status;
+@property (strong, nonatomic, readonly) NSString *status;
 
 @end
 

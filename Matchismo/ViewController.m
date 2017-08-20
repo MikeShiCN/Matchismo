@@ -10,6 +10,7 @@
 #import "PlayingCardDeck.h"
 #import "PlayingCard.h"
 #import "CardMatchingGame.h"
+#import "HistoryViewController.h"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
@@ -29,9 +30,7 @@
 - (CardMatchingGame *)game {
     if (!_game) {
         [self newGame];
-//        _game = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count]
-//                                                  usingDeck:[self createDeck]];
-    
+   
     }
     return _game;
 }
@@ -60,7 +59,7 @@
     _game = [[CardMatchingGame alloc] initWithCardCount:[self.cardButtons count]
                                               usingDeck:[self createDeck]];
     self.isInGame = NO;
-    _game.mode = [self getGameModeByIndex:self.gameModeControl.selectedSegmentIndex] ;
+    _game.mode = [self getGameModeByIndex:self.gameModeControl.selectedSegmentIndex];
 }
 
 
@@ -102,7 +101,18 @@
 
 
 }
+
+- (void) logStatusArray {
+    if (self.game) {
+        NSArray *statusArray = [self.game getStatusArray];
+        for (NSString * status in statusArray) {
+            NSLog(@"%@", status);
+        }
+    }
+}
+
 - (IBAction)restart:(UIButton *)sender {
+    [self logStatusArray];
     [self newGame];
     [self updateUI];
 }
@@ -115,5 +125,14 @@
     NSLog(@"GameMode = %u", self.game.mode);
 }
 
+
+- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString:@"HistoryViewer"]) {
+        if ([segue.destinationViewController isKindOfClass:[HistoryViewController class]]) {
+            HistoryViewController * hisViewController = (HistoryViewController *)segue.destinationViewController;
+            hisViewController.arrayToBeShown = self.game.getStatusArray;
+        }
+    }
+}
 
 @end

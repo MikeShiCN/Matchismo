@@ -15,6 +15,10 @@
 @property (nonatomic, getter=isChosen) BOOL chosen;
 @property (nonatomic, getter=isMatched) BOOL matched;
 
+
+//Do a match against otherCards
+//in : otherCards
+//return : score/penalty for matching
 - (int)match:(NSArray *) otherCards;
 
 @end

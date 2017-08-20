@@ -12,6 +12,8 @@
 
 @property (nonatomic, readwrite) NSInteger score;
 @property (nonatomic, strong) NSMutableArray *cards;
+@property (nonatomic, strong, readwrite) NSString *status;
+@property (nonatomic, strong) NSMutableArray *statusArray;
 
 @end
 
@@ -34,6 +36,22 @@
 - (void) setScore:(NSInteger)score {
     NSLog(@"Score = %ld", score);
     _score = score;
+}
+
+- (void) setStatus:(NSString *)status {
+    _status = status;
+    [self.statusArray addObject:status];
+}
+
+- (NSMutableArray *) statusArray {
+    if (!_statusArray) {
+        _statusArray = [[NSMutableArray alloc] init];
+    }
+    return _statusArray;
+}
+
+- (NSArray *)getStatusArray {
+    return self.statusArray;
 }
 
 - (NSMutableArray *) cards {
@@ -117,7 +135,7 @@ static const int COST_TO_CHOOSE = -1;
         }
         
     } else {
-        self.status = [self getCardsString:allChosenCards];
+//        self.status = [self getCardsString:allChosenCards];
     }
     NSLog(@"%@", self.status);
 
